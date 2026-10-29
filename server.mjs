@@ -2,7 +2,7 @@ import {createServer} from 'node:http';
 import {readFile} from 'node:fs/promises';
 import {resolve,extname} from 'node:path';
 const root=resolve(import.meta.dirname);
-const allowed=new Set(['/','/index.html','/src/app.js','/src/domain.js','/src/style.css']);
+const allowed=new Set(['/','/index.html','/src/app.js','/src/domain.js','/src/style.css','/src/safety.js','/src/safety-domain.js']);
 createServer(async(req,res)=>{
  const path=new URL(req.url,'http://localhost').pathname;
  res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'");

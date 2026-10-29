@@ -1,3 +1,4 @@
+import {renderSafety, resetSafety} from './safety.js';
 import { sections, validateReport, escapeHTML as e } from './domain.js';
 const main = document.querySelector('main');
 let reports=[], messages=[], acknowledged=false;
@@ -8,6 +9,7 @@ const heading=(label,title,desc)=>`<p class="eyebrow">${label}</p><h1>${title}</
 function render(){
  const route=location.hash.slice(1)||'oversikt';
  document.querySelector('nav').innerHTML=sections.map(([id,icon,label])=>`<a href="#${id}" ${route===id?'aria-current="page"':''}><span aria-hidden="true">${icon}</span>${label}</a>`).join('');
+ if(renderSafety(route,main,render)) return;
  if(route==='oversikt') main.innerHTML=heading('DIN ARBEIDSPLASS. DIN STEMME.','Godt å ha et sted å gå.','Finn folkene, kunnskapen og støtten du trenger i arbeidsdagen.')+`<section class="hero"><div><span class="pill">En arbeidsplass med omtanke</span><h2>Små spørsmål.<br>Viktige samtaler.</h2><p>Det skal være enkelt å finne riktig person og vite hva neste steg er.</p><a class="button" href="#tillitsvalgte">Finn noen å snakke med ↗</a></div><div class="art" aria-hidden="true"><div class="orbit"></div><span>Vi.<br>Sammen.</span></div></section><div class="grid three">${card('KUNNSKAP','Kjenn dine rettigheter','Veier til offisiell informasjon og arbeidsplassens rutiner.','rettigheter')}${card('STØTTE','Din tillitsvalgte','Finn riktig kontakt for spørsmål om arbeidshverdagen.','tillitsvalgte')}${card('OPPFØLGING','Si fra','Se hvordan en tydelig varslingsprosess kan fungere.','varsling')}</div><section class="panel"><span class="eyebrow">FRA ARBEIDSPLASSEN · EKSEMPEL</span><h3>Sammen om et bedre arbeidsmiljø</h3><p>Demo: Gå gjennom arbeidsplassens rutine for å si fra.</p><button id="ack" class="secondary">${acknowledged?'✓ Markert som lest i demo':'Marker som lest i demo'}</button></section>`;
  else if(route==='ansatte'||route==='tillitsvalgte') main.innerHTML=heading('FOLK OG STØTTE',route==='ansatte'?'Riktig person. Kort vei.':'Noen på din side.','Alle navn og kontaktroller nedenfor er fiktive eksempler.')+`<div class="grid three">${people.filter(p=>route==='ansatte'||p[1]!=='Varslingsansvarlig').map(([name,role,desc,initials])=>`<article class="card"><span class="person">${initials}</span><p class="eyebrow">${role}</p><h3>${name}</h3><p>${desc}</p><a class="button secondary" href="#meldinger">Åpne demosamtale</a></article>`).join('')}</div><section class="panel"><h3>Klare roller gjør det lettere å få hjelp</h3><p>Tillitsvalgt, verneombud og varslingsansvarlig vises separat. Før bruk må virksomheten bekrefte kontaktpersonene og hvem som skal motta hver type henvendelse.</p></section>`;
  else if(route==='rettigheter') main.innerHTML=heading('KUNNSKAP','Mer oversikt. Bedre grunnlag.','Start med pålitelige kilder. Din arbeidsavtale og eventuelle tariffavtale må vurderes konkret.')+`<div class="grid two">${sources.map(([title,desc,url])=>`<a class="card action" href="${url}" target="_blank" rel="noopener noreferrer"><span class="eyebrow">ARBEIDSTILSYNET ↗</span><h3>${title}</h3><p>${desc}</p></a>`).join('')}</div><p class="muted">Kildelenker lagt inn 29. oktober 2026. Innholdet hos kilden gjelder; dette er ikke en individuell juridisk vurdering.</p>`;
@@ -19,5 +21,5 @@ function render(){
  document.querySelector('#message')?.addEventListener('submit',event=>{event.preventDefault();const body=new FormData(event.target).get('body').trim();if(!body||body.length>2000)return;messages.push({body,to:document.querySelector('#contact').value});render();});
 }
 window.addEventListener('hashchange',()=>{render();main.focus();});
-document.querySelector('#reset').addEventListener('click',()=>{reports=[];messages=[];acknowledged=false;render();});
+document.querySelector('#reset').addEventListener('click',()=>{reports=[];messages=[];acknowledged=false;resetSafety();render();});
 render();
